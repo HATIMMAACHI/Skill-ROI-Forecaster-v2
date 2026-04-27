@@ -278,15 +278,18 @@ def load_kmeans_assets():
         if df_num[col].dtype == bool:
             df_num[col] = df_num[col].astype(int)
 
-    # Reorder columns to match training
-    # Handle missing columns if any (shouldn't happen with correct dataset)
-    existing_cols = [c for c in correct_order if c in df_num.columns]
-    df_num = df_num[existing_cols]
+    # Ensure all 56 columns exist, filling missing ones with 0
+    for col in correct_order:
+        if col not in df_num.columns:
+            df_num[col] = 0
+
+    # Enforce exact order
+    df_num = df_num[correct_order]
 
     scaler = StandardScaler()
     scaler.fit(df_num)
 
-    return kmeans, scaler, existing_cols
+    return kmeans, scaler, correct_order
 
 
 model_rf, rules, roi_df, feature_columns = load_models()
