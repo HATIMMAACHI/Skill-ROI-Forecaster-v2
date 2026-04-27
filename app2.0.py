@@ -256,6 +256,20 @@ def load_models():
 @st.cache_resource
 def load_kmeans_assets():
     kmeans = joblib.load('kmeans_model.pkl')
+    
+    # EXACT column order from the training notebook to avoid feature misalignment
+    correct_order = [
+        'salary', 'python', 'java', 'javascript', 'aws', 'sql', 'agile', 'git', 'c#', 
+        'software engineering', 'c++', 'kubernetes', 'docker', 'react', 'typescript', 
+        'software development', 'linux', 'angular', 'go', 'html', 'css', 'azure', 
+        'unit testing', 'jira', 'microservices', 'scrum', 'devops', 'node.js', 
+        'cloud computing', '.net', 'jenkins', 'ci/cd', 'communication', 'computer science', 
+        'c', 'agile development', 'machine learning', 'postgresql', 'gcp', 'nosql', 
+        'mysql', 'confluence', 'distributed systems', 'sql server', 'continuous integration', 
+        'software design', 'rest', "'machine learning'", 'terraform', 'kafka', 
+        'data structures', 'seniority_encoded', 'job_category_data engineer', 
+        'job_category_data scientist', 'job_category_ml engineer', 'job_category_software engineer'
+    ]
 
     df_train = pd.read_csv('dataset_encode.csv').drop_duplicates()
     df_num = df_train.select_dtypes(include=['number', 'bool']).copy()
@@ -264,13 +278,15 @@ def load_kmeans_assets():
         if df_num[col].dtype == bool:
             df_num[col] = df_num[col].astype(int)
 
-    if 'cluster' in df_num.columns:
-        df_num = df_num.drop(columns=['cluster'])
+    # Reorder columns to match training
+    # Handle missing columns if any (shouldn't happen with correct dataset)
+    existing_cols = [c for c in correct_order if c in df_num.columns]
+    df_num = df_num[existing_cols]
 
     scaler = StandardScaler()
     scaler.fit(df_num)
 
-    return kmeans, scaler, df_num.columns.tolist()
+    return kmeans, scaler, existing_cols
 
 
 model_rf, rules, roi_df, feature_columns = load_models()
