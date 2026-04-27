@@ -666,26 +666,43 @@ if analyser and mes_skills:
     """, unsafe_allow_html=True)
 
     cluster_names = {
-        0: ('💻 Fullstack / .NET Developer', '$277,456', 'Angular, React, C#, .NET · Stack Microsoft & Web'),
-        1: ('🖥️ Software Engineer', '$273,558', 'C++, Linux, Systèmes · Profil bas niveau'),
+        0: ('🔬 Data Scientist / ML', '$126,191', 'Python, Machine Learning · Profil analytique'),
+        1: ('☁️ Cloud / DevOps Architect', '$272,504', 'AWS, Kubernetes, Docker, Go · Infrastructure Cloud'),
         2: ('📋 Lead / Project Manager', '$275,000', 'Jira, Confluence, Scrum, Agile · Gestion d\'équipe'),
-        3: ('🔬 Data Scientist / ML', '$126,191', 'Machine Learning, Data Science · Profil analytique'),
-        4: ('☁️ Cloud / DevOps Architect', '$272,504', 'AWS, Kubernetes, Docker, Go · Infrastructure Cloud'),
+        3: ('🌐 Frontend / Fullstack', '$277,456', 'JavaScript, React, Angular, .NET · Web & Apps'),
+        4: ('🖥️ Systems / Embedded', '$273,558', 'C++, C, Linux · Programmation bas niveau'),
     }
 
-    input_kmeans = build_model_input(
-        kmeans_feature_columns,
-        mes_skills,
-        niveau_map[niveau],
-        salaire_predit,
-        selected_job_col=selected_job_col
-    )
+    # Define the 51 features used by the PURE K-Means model
+    kmeans_pure_features = [
+        'python', 'java', 'javascript', 'aws', 'sql', 'agile', 'git', 'c#', 
+        'software engineering', 'c++', 'kubernetes', 'docker', 'react', 'typescript', 
+        'software development', 'linux', 'angular', 'go', 'html', 'css', 'azure', 
+        'unit testing', 'jira', 'microservices', 'scrum', 'devops', 'node.js', 
+        'cloud computing', '.net', 'jenkins', 'ci/cd', 'communication', 'computer science', 
+        'c', 'agile development', 'machine learning', 'postgresql', 'gcp', 'nosql', 
+        'mysql', 'confluence', 'distributed systems', 'sql server', 'continuous integration', 
+        'software design', 'rest', "'machine learning'", 'terraform', 'kafka', 
+        'data structures', 'seniority_encoded'
+    ]
+
+    input_kmeans = []
+    # Build input from scratch for K-Means to ensure 51 features
+    row = {col: 0 for col in kmeans_pure_features}
+    for s in mes_skills:
+        if s in row: row[s] = 1
+        clean_s = s.replace("'", "")
+        if clean_s in row: row[clean_s] = 1
+    row['seniority_encoded'] = niveau_map[niveau]
+    
+    input_kmeans = [row[col] for col in kmeans_pure_features]
+    input_kmeans = np.array(input_kmeans).reshape(1, -1)
+    input_kmeans_scaled = kmeans_scaler.transform(input_kmeans)
 
     try:
-        input_kmeans_scaled = kmeans_scaler.transform(input_kmeans)
         cluster = kmeans_model.predict(input_kmeans_scaled)[0]
     except Exception:
-        # Fallback to raw input if scaling fails unexpectedly.
+        # Fallback to raw input if prediction fails
         cluster = kmeans_model.predict(input_kmeans)[0]
     nom, salaire_cluster, desc = cluster_names.get(cluster, (f'Cluster {cluster}', 'N/A', ''))
 
