@@ -257,11 +257,13 @@ def load_models():
 
 @st.cache_resource
 def load_kmeans_assets():
-    kmeans = joblib.load('kmeans_model.pkl')
+    # Load versioned 51-feature files
+    kmeans = joblib.load('kmeans_model_v51.pkl')
+    scaler = joblib.load('kmeans_scaler_v51.pkl')
     
-    # EXACT column order from the training notebook to avoid feature misalignment
-    correct_order = [
-        'salary', 'python', 'java', 'javascript', 'aws', 'sql', 'agile', 'git', 'c#', 
+    # Pure Skills + Seniority (51 features)
+    pure_features = [
+        'python', 'java', 'javascript', 'aws', 'sql', 'agile', 'git', 'c#', 
         'software engineering', 'c++', 'kubernetes', 'docker', 'react', 'typescript', 
         'software development', 'linux', 'angular', 'go', 'html', 'css', 'azure', 
         'unit testing', 'jira', 'microservices', 'scrum', 'devops', 'node.js', 
@@ -269,29 +271,9 @@ def load_kmeans_assets():
         'c', 'agile development', 'machine learning', 'postgresql', 'gcp', 'nosql', 
         'mysql', 'confluence', 'distributed systems', 'sql server', 'continuous integration', 
         'software design', 'rest', "'machine learning'", 'terraform', 'kafka', 
-        'data structures', 'seniority_encoded', 'job_category_data engineer', 
-        'job_category_data scientist', 'job_category_ml engineer', 'job_category_software engineer'
+        'data structures', 'seniority_encoded'
     ]
-
-    df_train = pd.read_csv('dataset_encode.csv').drop_duplicates()
-    df_num = df_train.select_dtypes(include=['number', 'bool']).copy()
-
-    for col in df_num.columns:
-        if df_num[col].dtype == bool:
-            df_num[col] = df_num[col].astype(int)
-
-    # Ensure all 56 columns exist, filling missing ones with 0
-    for col in correct_order:
-        if col not in df_num.columns:
-            df_num[col] = 0
-
-    # Enforce exact order
-    df_num = df_num[correct_order]
-
-    scaler = StandardScaler()
-    scaler.fit(df_num)
-
-    return kmeans, scaler, correct_order
+    return kmeans, scaler, pure_features
 
 
 model_rf, rules, roi_df, feature_columns = load_models()
