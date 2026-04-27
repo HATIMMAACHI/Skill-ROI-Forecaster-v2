@@ -289,9 +289,8 @@ def detect_job_category_column(columns, selected_job_col=None):
     job_cols = [col for col in columns if col.startswith('job_category_')]
     if selected_job_col and selected_job_col in job_cols:
         return selected_job_col
-    if 'job_category_software engineer' in job_cols:
-        return 'job_category_software engineer'
-    return job_cols[0] if job_cols else None
+    # No default return, let the model decide based on other features (skills)
+    return None
 
 
 def build_model_input(columns, selected_skills, seniority_value, salary_value=None, selected_job_col=None):
@@ -502,7 +501,8 @@ if analyser and mes_skills:
     mes_skills = deduplicate_skill_list(mes_skills)
 
     # ── CATÉGORIE MÉTIER (Interne)
-    selected_job_col = detect_job_category_column(feature_columns)
+    # Initialize as None to avoid bias unless we have logic to detect it from skills
+    selected_job_col = None
 
     # ── SALAIRE ESTIMÉ
     st.markdown("""
