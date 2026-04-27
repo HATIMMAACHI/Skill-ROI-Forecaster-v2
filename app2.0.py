@@ -666,10 +666,11 @@ if analyser and mes_skills:
     """, unsafe_allow_html=True)
 
     cluster_names = {
-        0: ('🔬 Data Scientist', '$126,191', 'Orienté machine learning · Séniorité élevée'),
-        1: ('💻 Software Engineer', '$273,558', 'Généraliste · Python, Java, C++'),
-        2: ('☁️ Cloud / Backend', '$272,504', 'AWS, Kubernetes, Docker, SQL'),
-        3: ('🌐 Frontend Developer', '$277,456', 'JavaScript, React, HTML, CSS · Salaire le plus élevé'),
+        0: ('💻 Fullstack / .NET Developer', '$277,456', 'Angular, React, C#, .NET · Stack Microsoft & Web'),
+        1: ('🖥️ Software Engineer', '$273,558', 'C++, Linux, Systèmes · Profil bas niveau'),
+        2: ('📋 Lead / Project Manager', '$275,000', 'Jira, Confluence, Scrum, Agile · Gestion d\'équipe'),
+        3: ('🔬 Data Scientist / ML', '$126,191', 'Machine Learning, Data Science · Profil analytique'),
+        4: ('☁️ Cloud / DevOps Architect', '$272,504', 'AWS, Kubernetes, Docker, Go · Infrastructure Cloud'),
     }
 
     input_kmeans = build_model_input(
